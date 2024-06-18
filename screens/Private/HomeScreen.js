@@ -1,37 +1,73 @@
-import { View, Text, Image, ScrollView, TouchableOpacity, TextInput, FlatList } from 'react-native'
+import { View, Text, Image, ScrollView, TouchableOpacity, TextInput, FlatList,Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import {themeColors} from '../theme';
+import {themeColors} from '../../theme';
 import * as Icon from "react-native-feather";
 import { StatusBar } from 'expo-status-bar';
-import { categories, coffeeItems } from '../constants';
+import { categories, coffeeItems } from '../../constants';
 import Carousel from 'react-native-snap-carousel';
-import CoffeeCard from '../components/coffeeCard';
+import CoffeeCard from '../../components/coffeeCard';
 import { BellIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
 import { MapPinIcon } from 'react-native-heroicons/solid'
+import * as Location from 'expo-location';
 
 
 export default function HomeScreen() {
+
   const [activeCategory, setActiveCategory] = useState(1);
+
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [address, setAddress] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      // Request permissions to access the location
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      // Get the current location
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+
+      // Reverse geocode to get the address
+      let address = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      });
+      setAddress(address[0]);
+    })();
+  }, []);
+
+  // Prepare the text to display based on address or error
+  let text = 'Waiting for location...';
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (address) {
+    text = `City: ${address.city}`;
+  }
 
   return (
     <View className="flex-1 relative bg-white">
       <StatusBar />
 
       <Image 
-        source={require('../assets/images/beansBackground1.png')} 
+        source={require('../../assets/images/beansBackground1.png')} 
         style={{height: 220}} 
         className="w-full absolute -top-5 opacity-10" />
       <SafeAreaView className="flex-1">
         {/* avatar and bell icon */}
         <View className="mx-4 flex-row justify-between items-center">
-          <Image source={require('../assets/images/avatar.png')} 
+          <Image source={require('../../assets/images/avatar.png')} 
             className="h-9 w-9 rounded-full" />
           
           <View className="flex-row items-center space-x-2">
             <MapPinIcon size="25" color={themeColors.bgLight} />
             <Text className="font-semibold text-base">
-              New York, NYC
+             {text}
             </Text>
           </View>
           <BellIcon size="27" color="black" />

@@ -1,14 +1,14 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from '../screens/HomeScreen';
+import HomeScreen from '../screens/Private/HomeScreen';
 import { LogBox, Text, View } from 'react-native';
-import ProductScreen from '../screens/ProductScreen';
+import ProductScreen from '../screens/Private/ProductScreen';
 import { themeColors } from '../theme';
-
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {HomeIcon as HomeOutline, HeartIcon as HeartOutline, ShoppingBagIcon as BagOutline } from 'react-native-heroicons/outline';
 import {HomeIcon as HomeSolid, HeartIcon as HeartSolid, ShoppingBagIcon as BagSolid} from 'react-native-heroicons/solid';
+import Login from '../screens/Public/Login';
 
 
 const Stack = createNativeStackNavigator();
@@ -25,8 +25,10 @@ export default function AppNavigation() {
       <Stack.Navigator screenOptions={{
         contentStyle: {backgroundColor: 'white'}
       }}>
+      <Stack.Screen name="Login" options={{headerShown: false}} component={Login} />
         <Stack.Screen name="Home" options={{headerShown: false}} component={HomeTabs} />
         <Stack.Screen name="Product" options={{headerShown: false}} component={ProductScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   )
@@ -62,7 +64,6 @@ function HomeTabs(){
 
 const menuIcons = (route, focused)=> {
   let icon;
-  
 
   if (route.name === 'home') {
     icon =  focused? <HomeSolid size="30" color={themeColors.bgLight} /> : <HomeOutline size="30" strokeWidth={2} color="white" />
